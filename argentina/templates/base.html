@@ -1,0 +1,58 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang='es'>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            ADC Argentina -
+            {% block titulo %}
+            {% endblock %}
+        </title>
+        {% load staticfiles %}
+        <link rel="shortcut icon" type="image/png" href="{% static 'adc/images/favicon.ico' %}"/>
+
+        <link rel="stylesheet" type="text/css" href="{% static 'adc/css/style.css' %}" />
+        <script type="text/javascript" src="{% static 'adc/js/funciones.js' %}"></script>
+
+        <script type="text/javascript" src="{% static 'adc/js/jquery-1.11.3.min.js' %}"></script>
+        <link rel="stylesheet" type="text/css" href="{% static 'adc/css/bootstrap.min.css' %}"/>
+        <script type="text/javascript" src="{% static 'adc/js/bootstrap.min.js' %}"></script>
+
+        <link rel="stylesheet" type="text/css" href="{% static 'adc/css/bootstrap-multiselect.css' %}"/>
+        <script type="text/javascript" src="{% static 'adc/js/bootstrap-multiselect.js' %}"></script>
+
+        {% block encabezado %}
+        {% endblock %}
+    </head>
+    <body class="body">
+        <header>
+            <div align=right>
+                {% block navegacion %} 
+                {% endblock %}
+                <!-- AQUI LINK PARA CERRAR SESION -->
+            </div>
+            <div align=center>
+                <!-- DONDE DICE ARGENTINA SE DEBERIA COLOCAR UNA IMAGEN REPRESENTATIVA DEL ADC -->
+                <h2> Asistente de Consultas ARGENTINA </h2> 
+            </div>
+        </header>
+        <section class='contenido'>
+            </br>
+            {% block contenido %}
+            {% endblock %}
+        </section>
+        <footer>
+            <div align=center>
+                </br></br>
+                <!--DONDE DICE Argentina AQUI DEBERIA IR EL COPYRIGHT, LOGO DE MEG Y DATOS DE DESARROLLADOR-->
+                <small> Desarrollado por <img src="{% static 'adc/images/logo-200x375.png' %}" width="60" height="34"></small>
+            </div>
+        </footer>
+
+        <script>
+            // AQUI FUNCIONES JAVASCRIPT
+        </script>
+
+    </body>
+</html>

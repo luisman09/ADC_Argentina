@@ -1,0 +1,89 @@
+/* cuerpo de la app */
+.body {
+    background: url(../images/bg.jpg) no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+/* caja principal que guarda todo */
+.box {
+    margin-left: 1cm;
+    margin-right: 1cm;
+}
+
+/* partes de las consultas */
+.partes {
+    color: #333;
+}
+
+/* titulos de las partes */
+.partes h3 {
+    font-size: 20px;
+}
+
+/* grupos de checkbox */
+.group-checkbox {
+    background-color: white;
+    padding: 15px;
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 15px 15px 15px 15px;
+}
+
+ul.checkbox  { 
+    margin: 0; 
+    padding: 0; 
+    margin-left: 20px; 
+    list-style: none; 
+} 
+
+ul.checkbox li { 
+    border: 1px transparent solid; 
+    display:inline-block;
+    width:12.3em;
+} 
+
+/* multiselect */
+.multiselect .dropdown-toggle .btn .btn-default {
+    width: 150px; 
+}
+
+/* tabla con los resultados y tabla para la matriz de muestreo */
+table {
+    width:100%;
+}
+
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 3px;
+    text-align: left;
+}
+
+table tr:nth-child(even) {
+    background-color: #dddddd;
+    color: black;
+}
+
+table tr:nth-child(odd) {
+    background-color: #eeeeee;
+    color: black;
+}
+
+table th    {
+    padding: 5px;
+    background-color: #286090;
+    color: white;
+}
+
+table#t02 th.crossed
+{
+    background-image: linear-gradient(to bottom left, transparent calc(50% - 1px), #dddddd, transparent calc(50% + 1px)); 
+}
+

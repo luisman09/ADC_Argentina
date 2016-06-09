@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+
+{% comment %} 
+{% endcomment %}
+
+{% block titulo %} 
+    C. Simple
+{% endblock %}
+
+{% block encabezado %}
+{% endblock %}
+
+{% block navegacion %}
+    | <a href="{% url 'adc:homepage' %}"> Volver Al Inicio </a>
+{% endblock %}
+
+{% block contenido %}
+
+    {% load staticfiles %}
+    <div id="box" class="box">
+
+        <div class="row">
+            <div class="col-sm-6" align="left">
+                <a href="{% url 'adc:homepage' %}">
+                    <input class="btn btn-primary" id="hacer-otra-consulta" name="hacer-otra-consulta" type="button" value="Realizar otra consulta"/>
+                </a>
+                </br></br>
+                <p>La consulta arroja  <strong style="font-size:15px">{{ total_rows }}</strong>  elementos:</p>
+            </div>
+            <div class="col-sm-6" align="right">
+                <a href="{% url 'adc:exportar_csv' %}">
+                    <input id="descargar-resultados" name="descargar-resultados" type="image" src="{% static 'adc/images/csv.png' %}" alt="Submit" width="64" height="64"/>
+                </a>
+                {% if resultados_pag.paginator.num_pages < 6553 %}
+                <a href="{% url 'adc:exportar_xls' %}">
+                    <input id="descargar-resultados" name="descargar-resultados" type="image" src="{% static 'adc/images/xls.png' %}" alt="Submit" width="64" height="64"/>
+                </a>
+                {% endif %}
+            </div>
+
+        </div>
+        <table class="table table-stripped table-bordered" id="t01">
+            <thead>
+                <tr>
+                    {% for a in atributos %}
+                        <th>{{ a }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>    
+            </tfoot>
+                {% for r in resultados_pag %}
+                    <tr>
+                        {% for s in r %}
+                            <td>{{ s }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tfoot>
+        </table>
+
+        <div class="pagination">
+            <span class="step-links">
+                {% if resultados_pag.has_previous %}
+                    <a class="pagina" href="?page={{ resultados_pag.previous_page_number }}">Anterior</a>
+                {% endif %}
+                <span class="current">
+                    - Página {{ resultados_pag.number }} de {{ resultados_pag.paginator.num_pages }}. -
+                </span>
+                {% if resultados_pag.has_next %}
+                    <a class="pagina" href="?page={{ resultados_pag.next_page_number }}">Siguiente</a>
+                {% endif %}
+            </span>
+        </div>
+
+        <script>
+
+            // OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+            // AQUI DEBE HABER ALGO (POSIBLEMENTE AJAX) PARA PASAR A LA VISTA DE NUEVO LOS atributos Y LOS resultados
+            //$('.pagina').click(function(){
+            //    values = [1, 2];
+            //    console.log(values);
+            //    $.ajax({
+            //        url: "{% url 'adc:resultados' %}",
+            //        type: 'POST',
+            //        data: {'esto': values}
+            //    });       
+            //});
+
+        </script>
+
+    </div>
+
+{% endblock %}

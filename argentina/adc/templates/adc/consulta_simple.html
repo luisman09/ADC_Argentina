@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+
+{% comment %} 
+{% endcomment %}
+
+{% block titulo %} 
+    C. Simple
+{% endblock %}
+
+{% block encabezado %}
+{% endblock %}
+
+{% block navegacion %}
+    | <a href="{% url "adc:homepage" %}"> Volver Al Inicio </a>
+{% endblock %}
+
+{% block contenido %}
+
+    <div class="box">
+        <form id="consulta_simple-form" action="{% url 'adc:resultados' %}" method="post">
+            {% csrf_token %}
+            </br>
+            
+            <div class="partes" id="parte_1">
+                <h3 align="center"> Selecciona los atributos a mostrar </h3>
+                <!--Caja de checkbox con todos los posibles atributos seleccionables para mostrar.-->
+                <fieldset class="group-checkbox"> 
+                    <ul class="checkbox"> 
+                    {% for elem in lista_attos %}
+                        <li>
+                            <input class="seleccionados" id="attos{{ forloop.counter }}" name="attos-select" type="checkbox" value="{{ elem.0 }}" />
+                            <label for="attos{{ forloop.counter }}"> {{ elem.0 }} </label>
+                        </li>
+                    {% endfor %}
+                    </ul> 
+                </fieldset>
+                </br>
+                <div id="email1-null-div" align="center" hidden="true">
+                    <input id="email1-null" name="no-nulo" type="checkbox" value="email1-null"/>
+                    <label style="font-size:10px"> Marque esta casilla para NO permitir que los resultados arrojen "Emails 1" Nulos </label>
+                </div>
+                <div id="email2-null-div" align="center" hidden="true">
+                    <input id="email2-null" name="no-nulo" type="checkbox" value="email2-null"/>
+                    <label style="font-size:10px"> Marque esta casilla para NO permitir que los resultados arrojen "Emails 2" Nulos </label>
+                </div>
+                <div id="celular1-null-div" align="center" hidden="true">
+                    <input id="celular1-null" name="no-nulo" type="checkbox" value="celular1-null"/>
+                    <label style="font-size:10px"> Marque esta casilla para NO permitir que los resultados arrojen "Telefonos 1" Nulos </label>
+                </div>
+                <div id="celular2-null-div" align="center" hidden="true">
+                    <input id="celular2-null" name="no-nulo" type="checkbox" value="celular2-null"/>
+                    <label style="font-size:10px"> Marque esta casilla para NO permitir que los resultados arrojen "Telefonos 2" Nulos </label>
+                </div>
+                <div id="celular3-null-div" align="center" hidden="true">
+                    <input id="celular3-null" name="no-nulo" type="checkbox" value="celular3-null"/>
+                    <label style="font-size:10px"> Marque esta casilla para NO permitir que los resultados arrojen "Telefonos 3" Nulos </label>
+                </div>
+            </div>
+
+            <div class="partes" id="parte_2">
+                <h3 align="center"> Selecciona las condiciones o limitantes </h3>
+                <!--Lista desplegable que te permite escoger condiciones para limitar la consulta.
+                    Funciona como una lista simple, pero puede usarse varias veces, ya que trabaja
+                    con habilitar y deshabilitar elementos.-->
+                <div align="center">
+                    <select class="lista" id="conds" name="conds">
+                        <option> Campos a condicionar </option>
+                        {% for elem in lista_conds %}
+                            <option id="{{ elem.2 }}" value="{{ elem.2 }}"> {{ elem.0 }} </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                </br></br>
+
+                <div class="form-group" id="ubicacion" name="ubicacion" hidden="true">
+                    <label class="col-sm-2 control-label"> Ubicación Demográfica: </label>     
+                    <div class="col-sm-9">
+                        <select class="lista" id="prov" name="prov">
+                            <option value="" selected> Provincia </option>
+                            {% for provincia in provincias %}
+                                <option value="{{ provincia.provincia }}"> {{ provincia.provincia }} </option>
+                            {% endfor %}
+                        </select>
+                        <select class="lista" id="dist" name="dist">
+                            <option value="" selected> Distrito </option>
+                        </select>
+                        <select class="lista" id="barr" name="barr">
+                            <option value="" selected> Barrio </option>
+                        </select>
+                        <select class="lista" id="escs" name="escs" multiple>
+                            <option class="primero_multiples" value="" selected disabled> Escuelas </option>
+                        </select>
+                    </div>
+                    <!--<input class="btn btn-sm" id="agregar-otra-ubicacion" type="button" value="+"/>-->
+                    <input class="btn btn-sm" id="eliminar-ubicacion" name="eliminar-ubicacion" type="button" value="-"/>
+                    </br></br>
+                </div> 
+
+                <div class="form-group" id="dni-esp" name="dni-esp" hidden="true">
+                    <label class="col-sm-2 control-label"> DNI Específico: </label>
+                    <div class="col-sm-3">
+                        <input class="form-control" id="dni" name="dni" type="text" placeholder="Número DNI" onKeyPress="return numeroEnteroPositivo(event)"/>
+                    </div>
+                    <input class="btn btn-sm" id="eliminar-dni-esp" name="eliminar-dni-esp" type="button" value="-"/>
+                    </br></br>
+                </div>
+
+                <div class="form-group" id="nombre-completo" name="nombre-completo" hidden="true"> 
+                    <label class="col-sm-2 control-label"> Nombre Completo Elector: </label>
+                    <div class="col-sm-2"> 
+                        <input class="form-control" id="nombre" name="nombre" type="text" placeholder="Nombre" onKeyPress="return soloLetras(event)" onblur="aMayusculas(this.value,this.id)"/>
+                    </div>
+                    <div class="col-sm-2">  
+                        <input class="form-control" id="apellido" name="apellido" type="text" placeholder="Apellido" onKeyPress="return soloLetras(event)" onblur="aMayusculas(this.value,this.id)"/>
+                    </div>
+                    <input class="btn btn-sm" id="eliminar-nombre-completo" name="eliminar-nombre-completo" type="button" value="-"/>
+                    </br></br>  
+                </div>  
+
+                <div class="form-group" id="genero" name="genero" hidden="true">  
+                    <label class="col-sm-2 control-label"> Sexo: </label>
+                    <div class="col-sm-2">
+                        <select class="lista" id="sexo" name="sexo">
+                            <option value="" selected> Sexo </option>
+                            {% for gen in sexos %}
+                                <option value="'{{ gen }}'"> {{ gen }} </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <input class="btn btn-sm" id="eliminar-genero" name="eliminar-genero" type="button" value="-"/>
+                    </br></br>  
+                </div> 
+
+                <div class="form-group" id="nse-soc" name="nse-soc" hidden="true"> 
+                    <label class="col-sm-2 control-label"> Estratos Socioeconómicos: </label>
+                    <div class="col-sm-2">
+                        <select class="lista" id="nse" name="nse" multiple>
+                            <option class="primero_multiples" value="" selected disabled> NSE </option>
+                            {% for estrato in nses %}
+                                <option value="'{{ estrato }}'"> {{ estrato }} </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <input class="btn btn-sm" id="eliminar-nse-soc" name="eliminar-nse-soc" type="button" value="-"/>
+                    </br></br>  
+                </div>
+
+                <div class="form-group" id="edad" name="edad" hidden="true"> 
+                    <label class="col-sm-2 control-label"> Rango de Edad: </label>
+                    <div class="col-sm-2">
+                        <input class="form-control" id="minimo" name="minimo" type="text" placeholder="Mínimo" onKeyPress="return numeroEnteroPositivo(event)"/>
+                    </div>
+                    <div class="col-sm-2">
+                        <input class="form-control" id="maximo" name="maximo" type="text" placeholder="Máximo" onKeyPress="return numeroEnteroPositivo(event)"/>
+                    </div>
+                    <input class="btn btn-sm" id="eliminar-edad" name="eliminar-edad" type="button" value="-"/>
+                    </br></br>
+                </div> 
+
+            </div>
+            
+
+
+
+
+
+            </br></br>
+            <!--Boton Hacer consulta, que verifica que la consulta sea una consulta valida y la ejecuta.-->
+            <div id="boton-continuar" align="center" >
+                <input class="btn btn-primary" id="continuar" name="continuar" type="button" value="Hacer Consulta"/>
+            </div>
+            </br>
+
+            <script>
+
+                $('input#attos14').on('change', function() {
+                    var check = $('input#attos14').is(':checked');
+                    if (check) {
+                        $('div#email1-null-div').show();
+                    } else {
+                        $('div#email1-null-div').hide();
+                    }
+                });
+                $('input#attos15').on('change', function() {
+                    var check = $('input#attos15').is(':checked');
+                    if (check) {
+                        $('div#email2-null-div').show();
+                    } else {
+                        $('div#email2-null-div').hide();
+                    }
+                });
+                $('input#attos16').on('change', function() {
+                    var check = $('input#attos16').is(':checked');
+                    if (check) {
+                        $('div#celular1-null-div').show();
+                    } else {
+                        $('div#celular1-null-div').hide();
+                    }
+                });
+                $('input#attos17').on('change', function() {
+                    var check = $('input#attos17').is(':checked');
+                    if (check) {
+                        $('div#celular2-null-div').show();
+                    } else {
+                        $('div#celular2-null-div').hide();
+                    }
+                });
+                $('input#attos18').on('change', function() {
+                    var check = $('input#attos18').is(':checked');
+                    if (check) {
+                        $('div#celular3-null-div').show();
+                    } else {
+                        $('div#celular3-null-div').hide();
+                    }
+                });
+
+
+
+                aplicarMultiselect('#conds');
+                aplicarMultiselect('.lista');
+
+
+                // Se ejecuta cada vez que se elige una opcion para condicionar la consulta.
+                $('select#conds').on('change', deshabilitarOpcion);
+
+                // Desabilita la opcion seleccionada y muestra los elementos para agregar 
+                // las condiciones sobre esa opcion. Cuando el elemento es dinamico hay casos particulares.
+                function deshabilitarOpcion() {
+                    var op = $('#conds').val();
+                    var msj = false;
+                    var deshabilitadas = $('select#conds option:disabled').map(function(){return this.value}).get();
+                    if (op == 'ubicacion') {
+                        $('select#prov').on('change', obtenerPrimerosDistritos);
+                        $('select#dist').on('change', obtenerPrimerosBarrios);
+                        $('select#barr').on('change', obtenerPrimerasEscuelas);
+                    }
+                    if (msj == false) {
+                        $('div#'+op).attr('hidden', false);
+                        $('select#conds option:selected').attr('disabled', true);
+                        $('select#conds option:first').attr('selected', 'selected');
+                        $('select#conds').multiselect('refresh');
+                        $('#eliminar-'+op).click(eliminarOpcion);
+                    }
+                }
+
+                // Habilita nuevamente la opcion y oculta los elementos que agregan condiciones sobre esa opcion.
+                function eliminarOpcion(){
+                    var div_container = $(this).parent().attr("id");
+                    $('div#'+div_container).attr('hidden', true);
+                    var y = $('select#conds').find('option[value="'+div_container+'"]').attr('disabled', false);
+                    $('select#conds').multiselect('refresh');
+                }
+
+                // Genera una lista de todas las opciones deshabilitadas que se estan utilizando 
+                // para condicionar (restringir) la consulta, y manda esa lista a la view correspondiente.
+                //function opcionesDeshabilitadas(){
+                //    var deshabilitadas = $('select#conds option:disabled').map(function(){return this.value}).get();
+                //    $.ajaxSetup({
+                //      data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+                //    });
+                //    $.ajax({
+                //        data: {'deshabilitadas': deshabilitadas},
+                //        url: "{% url 'adc:resultados' %}",
+                //        type: 'post',                   
+                //    });
+                //}
+
+                function obtenerPrimerosDistritos() {
+                    var prov = $(this).val();
+                    obtenerDistritos(prov,'dist','barr','escs');
+                }
+
+                function obtenerPrimerosBarrios() {
+                    var dist = $(this).val();
+                    obtenerBarrios(dist,'barr','escs');
+                }
+
+                function obtenerPrimerasEscuelas() {
+                    var barr = $(this).val();
+                    obtenerEscuelas(barr,'escs');
+                }
+
+                function obtenerDistritos(prov,id_dist,id_barr,id_escs) {
+                    $.ajax({
+                        data: {'prov': prov},
+                        url: "{% url 'adc:busqueda_ajax_prov' %}",
+                        type: 'get',
+                        success: function(data){
+                            var options = '<option value="" selected> Distrito </option>'
+                            for (var i = 0; i < data.length; i++) {
+                                options += '<option value="' + data[i].fields['distrito'] + '">' + data[i].fields['distrito'] + '</option>'; 
+                            }
+                            var options2 = '<option value="" selected> Barrio </option>'
+                            var options3 = '<option class="primero_multiples" value="" selected disabled> Escuelas </option>'
+                            $('select#'+id_dist).html(options);
+                            aplicarMultiselect('select#'+id_dist);
+                            $('select#'+id_dist).multiselect('rebuild');
+                            $('select#'+id_barr).html(options2);
+                            aplicarMultiselect('select#'+id_barr);
+                            $('select#'+id_barr).multiselect('rebuild');
+                            $('select#'+id_escs).html(options3);
+                            aplicarMultiselect('select#'+id_escs);
+                            $('select#'+id_escs).multiselect('rebuild');
+                        }
+                    });
+                }
+
+                function obtenerBarrios(dist,id_barr,id_escs) {
+                    $.ajax({
+                        data: {'dist': dist},
+                        url: "{% url 'adc:busqueda_ajax_dist' %}",
+                        type: 'get',
+                        success: function(data){
+                            var options = '<option value="" selected> Barrio </option>'
+                            for (var i = 0; i < data.length; i++) {
+                                options += '<option value="' + data[i].fields['barrio'] + '">' + data[i].fields['barrio'] + '</option>';
+                            }
+                            var options2 = '<option class="primero_multiples" value="" selected disabled> Escuelas </option>'
+                            $('select#'+id_barr).html(options);
+                            aplicarMultiselect('select#'+id_barr);
+                            $('select#'+id_barr).multiselect('rebuild');
+                            $('select#'+id_escs).html(options2);
+                            aplicarMultiselect('select#'+id_escs);
+                            $('select#'+id_escs).multiselect('rebuild');
+                        }
+                    });
+                }
+
+                function obtenerEscuelas(barr,id_escs){
+                    $.ajax({
+                        data: {'barr': barr},
+                        url: "{% url 'adc:busqueda_ajax_barr' %}",
+                        type: 'get',
+                        success: function(data){
+                            var options = '<option class="primero_multiples" value="" selected disabled> Escuelas </option>'
+                            for (var i = 0; i < data.length; i++) {
+                                options += '<option value="' + data[i].fields['escuela'] + '">' + data[i].fields['escuela'] + '</option>';
+                            }
+                            $('select#'+id_escs).html(options);
+                            aplicarMultiselect('select#'+id_escs);
+                            $('select#'+id_escs).multiselect('rebuild');
+                        }
+                    });
+                }
+
+                $('#continuar').on('click', function() {
+                    $('.primero_multiples').removeAttr("disabled");
+                    var check = $('.seleccionados').is(':checked');
+                    if (check) {
+                        $('#consulta_simple-form').submit();
+                    } else {
+                        alert('Se debe seleccionar por lo menos un atributo a mostrar.');
+                    }
+                });
+
+            </script>
+            
+        </form>
+    </div>
+
+{% endblock %}

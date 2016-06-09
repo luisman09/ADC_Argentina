@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+
+{% comment %} 
+{% endcomment %}
+
+{% block titulo %} 
+    Inicio
+{% endblock %}
+
+{% block encabezado %}
+{% endblock %}
+
+{% block navegacion %}
+    |
+{% endblock %}
+
+{% block contenido %}
+
+        <div class="box" align=center>
+            <h3> Bienvenido </h3>
+            </br>
+            <p> Indica la opción que deseas realizar: </p>
+            </br>
+            <a href="{% url "adc:consulta_simple" %}">
+                <input class="btn btn-primary" type="button" value="Realizar consulta simple"/>
+            </a>
+            <a href="{% url "adc:consulta_agrupados" %}">
+                <input class="btn btn-primary" type="button" value="Realizar consulta con agrupados"/>
+            </a>
+            </br></br>
+            </br>
+        </div>
+
+{% endblock %}
