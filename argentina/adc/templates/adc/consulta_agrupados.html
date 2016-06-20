@@ -75,7 +75,7 @@
                             {% endfor %}
                         </select>
                         <select class="lista" id="dist" name="dist">
-                            <option value="" selected> Distrito </option>
+                            <option value="" selected> Municipio (Seccion) </option>
                         </select>
                         <select class="lista" id="barr" name="barr">
                             <option value="" selected> Barrio </option>
@@ -152,6 +152,24 @@
 
             </div>
 
+            <div class="partes" id="parte_3">
+        
+                <div class="form-group" id="ordenar" name="ordenar">  
+                    <label class="col-sm-2 control-label"> Establece un orden: </label>
+                    <div class="col-sm-2">
+                        <select class="lista" id="orden" name="orden">
+                            <option value="" selected> Orden </option>
+                            {% for o in ordenes %}
+                                <option value="'{{ o }}'"> {{ o }} </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    </br></br>  
+                </div> 
+
+            </div>
+
+
             </br></br>
             <!--Boton Hacer consulta, que verifica que la consulta sea una consulta valida y la ejecuta.-->
             <div id="boton-continuar" align="center" >
@@ -203,13 +221,16 @@
                 }
 
                 function obtenerPrimerosBarrios() {
+                    var prov = $('#prov').val();
                     var dist = $(this).val();
-                    obtenerBarrios(dist,'barr','escs');
+                    obtenerBarrios(prov,dist,'barr','escs');
                 }
 
                 function obtenerPrimerasEscuelas() {
+                    var prov = $('#prov').val();
+                    var dist = $('#dist').val();
                     var barr = $(this).val();
-                    obtenerEscuelas(barr,'escs');
+                    obtenerEscuelas(prov,dist,barr,'escs');
                 }
 
                 function obtenerDistritos(prov,id_dist,id_barr,id_escs) {
@@ -218,7 +239,7 @@
                         url: "{% url 'adc:busqueda_ajax_prov' %}",
                         type: 'get',
                         success: function(data){
-                            var options = '<option value="" selected> Distrito </option>'
+                            var options = '<option value="" selected> Municipio (Seccion) </option>'
                             for (var i = 0; i < data.length; i++) {
                                 options += '<option value="' + data[i].fields['distrito'] + '">' + data[i].fields['distrito'] + '</option>'; 
                             }
@@ -237,9 +258,9 @@
                     });
                 }
 
-                function obtenerBarrios(dist,id_barr,id_escs) {
+                function obtenerBarrios(prov,dist,id_barr,id_escs) {
                     $.ajax({
-                        data: {'dist': dist},
+                        data: {'prov': prov, 'dist': dist},
                         url: "{% url 'adc:busqueda_ajax_dist' %}",
                         type: 'get',
                         success: function(data){
@@ -258,9 +279,9 @@
                     });
                 }
 
-                function obtenerEscuelas(barr,id_escs){
+                function obtenerEscuelas(prov,dist,barr,id_escs){
                     $.ajax({
-                        data: {'barr': barr},
+                        data: {'prov': prov, 'dist': dist, 'barr': barr},
                         url: "{% url 'adc:busqueda_ajax_barr' %}",
                         type: 'get',
                         success: function(data){

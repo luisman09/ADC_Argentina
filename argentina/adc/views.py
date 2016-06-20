@@ -8,6 +8,7 @@ from django.db import connection
 from django.core import serializers
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import csv
+import xlwt
 import json
 import time
 import codecs # Utilizada para la lectura del csv
@@ -51,14 +52,13 @@ def buscarCondiciones(c):
             if c[0][0] and not c[1][0]:
                 cad.append(lista_condiciones[0][1][1] + " = '" + c[0][0] + "'")
             if c[1][0] and not c[2][0]:
-                cad.append(lista_condiciones[1][1][1] + " = '" + c[1][0] + "'")
+                cad.append(lista_condiciones[0][1][1] + " = '" + c[0][0] + "'" + " AND " + lista_condiciones[1][1][1] + " = '" + c[1][0] + "'")
             if c[2][0] and not c[3][0]:
-                cad.append(lista_condiciones[2][1][1] + " = '" + c[2][0] + "'")
+                cad.append(lista_condiciones[0][1][1] + " = '" + c[0][0] + "'" + " AND " + lista_condiciones[1][1][1] + " = '" + c[1][0] + "'" + " AND " + lista_condiciones[2][1][1] + " = '" + c[2][0] + "'")
             if c[3][0]:
-                cad.append(lista_condiciones[3][1][1] + " IN ('" + "','".join(c[3]) + "')")
+                cad.append(lista_condiciones[0][1][1] + " = '" + c[0][0] + "'" + " AND " + lista_condiciones[1][1][1] + " = '" + c[1][0] + "'" + " AND " + lista_condiciones[2][1][1] + " = '" + c[2][0] + "'" + " AND " + lista_condiciones[3][1][1] + " IN ('" + "','".join(c[3]) + "')")
         # dni
         if c[4][0]:
-            print "por aqui"
             cad.append(lista_condiciones[4][1][1] + " = " + c[4][0])
         # nombre, apellido
         if c[5][0]:
@@ -105,6 +105,7 @@ class Consulta_SimpleView(generic.ListView):
         context['barrios'] = Arg_Centro.objects.order_by('barrio').distinct('barrio')
         context['sexos'] = lista_sexo
         context['nses'] = lista_nse
+        context['ordenes'] = lista_orden[2:4]
         return context
 
 
@@ -122,10 +123,11 @@ class Consulta_AgrupadosView(generic.ListView):
         context['barrios'] = Arg_Centro.objects.order_by('barrio').distinct('barrio')
         context['sexos'] = lista_sexo
         context['nses'] = lista_nse
+        context['ordenes'] = lista_orden[0:3]
         return context
 
 
-def crearConsulta(attos_select, no_nulos, agrupado, condiciones):
+def crearConsulta(attos_select, no_nulos, agrupado, condiciones, orden, limite):
 
     # Inicialización
     consulta = ""
@@ -133,7 +135,10 @@ def crearConsulta(attos_select, no_nulos, agrupado, condiciones):
     from_items = ""
     where_terms = []
     where_items = ""
+    agrupado_item = ""
     group_by_items = ""
+    order_by_items = ""
+    limit_items = ""
     # Items SELECT, GROUP BY y WHERE de no nulidad
     select_items = encadenarConSeparador(attos_select, ", ", lista_attos, 0)
     if agrupado: 
@@ -164,11 +169,28 @@ def crearConsulta(attos_select, no_nulos, agrupado, condiciones):
     if from_items == "arg_elector, arg_centro":
         where_terms = ["arg_elector.cue = arg_centro.cue"] + where_terms
         where_items = " WHERE " + " AND ".join(where_terms)
+    # Items ORDER BY y LIMIT
+    print orden[0]
+    if ("TOTALMENTE ALEATORIO" in orden[0]):
+        print "1"
+        order_by_items = " ORDER BY random()"
+    elif ("DE MAYOR A MENOR" in orden[0]):
+        print "2"
+        order_by_items = " ORDER BY " + agrupado_item + " DESC" 
+    elif ("DE MENOR A MAYOR" in orden[0]):
+        print "3"
+        order_by_items = " ORDER BY " + agrupado_item 
+    if limite:
+        if limite[0]:
+            limit_items = " LIMIT " + limite[0]
     # QUERY completo
     if any(k in select_items for k in ("provincia", "distrito", "barrio")) and not "count(" in select_items:
-        consulta = "SELECT DISTINCT " + select_items + " FROM " + from_items + where_items + group_by_items + ";"
+        if order_by_items:
+            consulta = "SELECT * FROM (SELECT DISTINCT " + select_items + " FROM " + from_items + where_items + group_by_items + ") AS q" + order_by_items + limit_items + ";" 
+        else:
+            consulta = "SELECT DISTINCT " + select_items + " FROM " + from_items + where_items + group_by_items + order_by_items + limit_items + ";"
     else:
-        consulta = "SELECT " + select_items + " FROM " + from_items + where_items + group_by_items + ";"
+        consulta = "SELECT " + select_items + " FROM " + from_items + where_items + group_by_items + order_by_items + limit_items + ";"
     return consulta
 
 
@@ -202,6 +224,8 @@ def resultados(request):
         nse = request.POST.getlist('nse')
         minimo = request.POST.getlist('minimo')
         maximo = request.POST.getlist('maximo')
+        orden = request.POST.getlist('orden')
+        limite = request.POST.getlist('limite')
         # Solo para los de seleccion multiple.
         if len(escs) > 1:
             escs = escs[1:]
@@ -215,7 +239,7 @@ def resultados(request):
             nse.append(u'')
         condiciones = [prov, dist, barr, escs, dni, nombre, apellido, sexo, nse, minimo, maximo]
         print condiciones
-        consulta = crearConsulta(attos_select, no_nulos, agrupado, condiciones)
+        consulta = crearConsulta(attos_select, no_nulos, agrupado, condiciones, orden, limite)
         resultados = ejecutarConsulta(consulta)
         if agrupado:
             attos_select = agrupado + attos_select
@@ -247,8 +271,9 @@ class BusquedaAjaxProvView(generic.TemplateView):
 class BusquedaAjaxDistView(generic.TemplateView):
     
     def get(self, request, *args, **kwargs):
+        y = request.GET['prov']
         x = request.GET['dist']
-        barrios = Arg_Centro.objects.filter(distrito=x).order_by('barrio').distinct('barrio')
+        barrios = Arg_Centro.objects.filter(provincia=y).filter(distrito=x).order_by('barrio').distinct('barrio')
         data = serializers.serialize('json', barrios, fields=('barrio'))
         return HttpResponse(data, content_type='application/json')
 
@@ -256,8 +281,10 @@ class BusquedaAjaxDistView(generic.TemplateView):
 class BusquedaAjaxBarrView(generic.TemplateView):
     
     def get(self, request, *args, **kwargs):
+        z = request.GET['prov']
+        y = request.GET['dist']
         x = request.GET['barr']
-        escuelas = Arg_Centro.objects.filter(barrio=x).order_by('escuela').distinct('escuela')
+        escuelas = Arg_Centro.objects.filter(provincia=z).filter(distrito=y).filter(barrio=x).order_by('escuela').distinct('escuela')
         data = serializers.serialize('json', escuelas, fields=('escuela'))
         return HttpResponse(data, content_type='application/json')
 
@@ -266,8 +293,8 @@ class BusquedaAjaxBarrView(generic.TemplateView):
 # con los resultados de haber ejecutado alguna consulta.
 def exportar_csv(request):
 
-    cabecera = attos_select
-    resultados = resultados
+    cabecera = last_save[0]
+    resultados = last_save[1]
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="consulta.csv"'
@@ -288,8 +315,8 @@ def exportar_csv(request):
 # con los resultados de haber ejecutado alguna consulta.
 def exportar_xls(request):
 
-    cabecera = attos_select
-    resultados = resultados
+    cabecera = last_save[0]
+    resultados = last_save[1]
 
     response = HttpResponse(content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename="consulta.xls"'

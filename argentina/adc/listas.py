@@ -6,7 +6,7 @@ lista_attos_elector = [("DNI",["arg_elector","arg_elector.dni"]),
                        ("Sexo",["arg_elector","arg_elector.sexo"]),
                        ("Edad",["arg_elector","arg_elector.edad_13 + (date_part('year', now())::integer - 2013)"]),
                        ("NSE",["arg_elector","arg_elector.nse"]),
-                       ("Dirección",["arg_elector","arg_elector.direccion"]),
+                       ("Direccion",["arg_elector","arg_elector.direccion"]),
                        ("Email 1",["arg_elector","arg_elector.email1"], "email1-null"),
                        ("Email 2",["arg_elector","arg_elector.email2"], "email2-null"),
                        ("Telefono 1",["arg_elector","arg_elector.telefono1"], "celular1-null"),
@@ -15,11 +15,11 @@ lista_attos_elector = [("DNI",["arg_elector","arg_elector.dni"]),
 
 
 lista_attos_centro = [("Provincia",["arg_centro","arg_centro.provincia"]),
-                      ("Distrito",["arg_centro","arg_centro.distrito"]),
+                      ("Municipio (Seccion)",["arg_centro","arg_centro.distrito"]),
                       ("Barrio",["arg_centro","arg_centro.barrio"]),
                       ("CUE",["arg_centro","arg_centro.cue"]),
                       ("Escuela",["arg_centro","arg_centro.escuela"]),
-                      ("Dirección Escuela",["arg_centro","arg_centro.dir_escuela"])]
+                      ("Direccion Escuela",["arg_centro","arg_centro.dir_escuela"])]
 
 
 lista_no_nulos = [("email1-null",["arg_elector","arg_elector.email1 IS NOT NULL"]),
@@ -36,7 +36,7 @@ lista_ag_attos = lista_attos_centro[0:5] + lista_attos_elector[3:6]
 
 
 lista_agrupados = [("Cantidad de Provincias",["arg_centro","count(distinct(arg_centro.provincia))"]),
-                   ("Cantidad de Distritos",["arg_centro","count(distinct(arg_centro.distrito))"]),
+                   ("Cantidad de Municipios (Secciones)",["arg_centro","count(distinct(arg_centro.distrito))"]),
                    ("Cantidad de Barrios",["arg_centro","count(distinct(arg_centro.barrio))"]),
                    ("Cantidad de Centros",["arg_centro","count(arg_centro.cue)"]),
                    ("Cantidad de Electores",["arg_elector","count(arg_elector.dni)"]),
@@ -66,6 +66,9 @@ lista_condiciones = [("prov",["agr_centro","arg_centro.provincia"]),("dist",["ag
                      ("nse",["arg_elector","arg_elector.nse"]),
                      ("minimo",["arg_elector","arg_elector.edad_13 + (date_part('year', now())::integer - 2013)"]),
                      ("maximo",["arg_elector","arg_elector.edad_13 + (date_part('year', now())::integer - 2013)"])]
+
+
+lista_orden = ['DE MAYOR A MENOR','DE MENOR A MAYOR','TOTALMENTE ALEATORIO','SIN ESPECIFICAR']
 
 
 lista_sexo = ['F','M']
